@@ -9,20 +9,32 @@ class Message extends Component {
       item: [],
     };
   }
+  //   changes in input
   handleChange = (val) => {
+    // getting the value
     const { value } = val.target;
+    // set new value to userInput
     this.setState({
       userInput: value,
     });
   };
-
+  //   handle form submission
   handleSubmit = (val) => {
     val.preventDefault();
+    // variables
     let userInput = this.state.userInput;
     let item = [...this.state.item];
-    if (userInput !== "") {
+    // check if empty
+    if (userInput.length === 0) {
+      this.setState({
+        message: "Cannot Enter Empty Task.",
+      });
+    } else {
+      // check in task already exists
       if (!item.includes(userInput)) {
+        // push to items
         item.push(userInput);
+        // setting new values
         this.setState({
           item,
           userInput: "",
@@ -36,7 +48,9 @@ class Message extends Component {
     }
   };
 
-  deleteInput = (val) => {
+  //   deleting task if done
+  //  (additional) confirm before deleting
+  deleteItem = (val) => {
     let items = [...this.state.item];
     let item = items.filter((item) => item !== val);
     this.setState({
@@ -45,6 +59,8 @@ class Message extends Component {
       message: "",
     });
   };
+  //   editing task
+
   editItem = (index) => {
     const todos = [...this.state.item];
     const editedTodo = prompt("Edit the todo:");
@@ -63,6 +79,7 @@ class Message extends Component {
           <h1 className="text-2xl font-semibold mb-4 text-white">ToDo</h1>
           <div className="grid grid-cols-10 gap-2">
             <div className="mb-4 text-start col-span-8">
+              {/* input task */}
               <input
                 type="text"
                 id="item"
@@ -74,6 +91,7 @@ class Message extends Component {
               />
             </div>
             <div className="col-span-2">
+              {/* submit */}
               <button
                 type="submit"
                 className="w-full border border-white text-white bg-slate-700 hover:border-blue-500 rounded-md px-4 py-2 "
@@ -82,6 +100,7 @@ class Message extends Component {
               </button>
             </div>
           </div>
+          {/* message */}
           <div>
             {this.state.message !== "" ? (
               <div className="text-red-700">{this.state.message}</div>
@@ -90,14 +109,16 @@ class Message extends Component {
             )}
           </div>
         </form>
+        {/* list of task */}
         <ul className="p-4 w-2/4 mx-auto">
           {this.state.item.map((item, index) => {
             return (
               <div className="grid grid-cols-10 mb-4" key={index}>
                 <div className="text-end">
+                  {/* done button */}
                   <button
                     className="text-white"
-                    onClick={() => this.deleteInput(item)}
+                    onClick={() => this.deleteItem(item)}
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -116,14 +137,13 @@ class Message extends Component {
                   </button>
                 </div>
                 <div className="col-span-8">
-                  <label
-                    htmlFor={item}
-                    className="ml-2 text-sm font-medium text-white dark:text-gray-300"
-                  >
+                  {/* item */}
+                  <p className="ml-2 text-sm font-medium text-white dark:text-gray-300">
                     {item}
-                  </label>
+                  </p>
                 </div>
                 <div className="text-start">
+                  {/* edit button */}
                   <button
                     className="text-white"
                     onClick={() => this.editItem(index)}
