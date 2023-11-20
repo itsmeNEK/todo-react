@@ -1,70 +1,57 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react"
 
 function Form() {
-  const [state, setState] = useState({
-    message: "",
-    userInput: "",
-    item: [],
-  });
+  const [message, setMessage] = useState("")
+  const [userInput, setUserInput] = useState("")
+  const [items, setItem] = useState([])
+  // Load items from local storage on component mount
+  useEffect(() => {
+    const storedItems = JSON.parse(localStorage.getItem("items")) || []
+    setItem(storedItems)
+  }, [])
+
+  // Save items to local storage whenever items change
+  useEffect(() => {
+    localStorage.setItem("items", JSON.stringify(items))
+  }, [items])
 
   const handleChange = (event) => {
-    const { name, value } = event.target;
-    setState({
-      ...state,
-      [name]: value,
-    });
-  };
+    const { value } = event.target
+    setUserInput(value)
+  }
 
   const handleSubmit = (event) => {
-    event.preventDefault();
-    const { userInput, item } = state;
+    event.preventDefault()
 
     if (userInput.length === 0) {
-      setState({
-        ...state,
-        message: "Cannot Enter Empty Task.",
-      });
-    } else {
-      if (!item.includes(userInput)) {
-        const updatedItem = [...item, userInput];
-        setState({
-          ...state,
-          item: updatedItem,
-          userInput: "",
-          message: "",
-        });
-      } else {
-        setState({
-          ...state,
-          message: "Task Already Exists!",
-        });
-      }
+      setMessage("Cannot Enter Empty Task.")
+      return 0
     }
-  };
+    if (items.includes(userInput)) {
+      setMessage("Task Already Exists!")
+      return 0
+    }
+    const updatedItem = [...items, userInput]
+    setItem(updatedItem)
+    setMessage("")
+    setUserInput("")
+  }
 
   const deleteItem = (value) => {
-    const { item } = state;
-    const updatedItem = item.filter((item) => item !== value);
-    setState({
-      ...state,
-      item: updatedItem,
-      userInput: "",
-      message: "",
-    });
-  };
+    const updatedItem = items.filter((item) => item !== value)
+    setItem(updatedItem)
+    setMessage("")
+    setUserInput("")
+  }
 
   const editItem = (index) => {
-    const { item } = state;
-    const editedTodo = prompt("Edit the todo:");
+    const editedTodo = prompt("Edit the todo:")
     if (editedTodo !== null && editedTodo.trim() !== "") {
-      const updatedTodos = [...item];
-      updatedTodos[index] = editedTodo;
-      setState({
-        ...state,
-        item: updatedTodos,
-      });
+      const updatedTodos = [...items]
+      updatedTodos[index] = editedTodo
+      setItem(updatedTodos)
     }
-  };
+  }
 
   return (
     <div>
@@ -76,7 +63,7 @@ function Form() {
               type="text"
               id="userInput"
               name="userInput"
-              value={state.userInput}
+              value={userInput}
               placeholder="Enter a task..."
               onChange={handleChange}
               className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 bg-slate-800 text-white"
@@ -92,19 +79,20 @@ function Form() {
           </div>
         </div>
         <div>
-          {state.message !== "" ? (
-            <div className="text-red-700">{state.message}</div>
-          ) : (
-            ""
-          )}
+          {message !== "" ? <div className="text-red-700">{message}</div> : ""}
         </div>
       </form>
       <ul className="p-4 w-2/4 mx-auto">
-        {state.item.map((item, index) => {
+        {items.map((item, index) => {
           return (
             <div className="grid grid-cols-10 mb-4" key={index}>
               <div className="text-end">
-                <button className="text-white" onClick={deleteItem(item)}>
+                <button
+                  className="text-white"
+                  onClick={() => {
+                    deleteItem(item)
+                  }}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -127,7 +115,12 @@ function Form() {
                 </p>
               </div>
               <div className="text-start">
-                <button className="text-white" onClick={editItem(index)}>
+                <button
+                  className="text-white"
+                  onClick={() => {
+                    editItem(index)
+                  }}
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -145,11 +138,11 @@ function Form() {
                 </button>
               </div>
             </div>
-          );
+          )
         })}
       </ul>
     </div>
-  );
+  )
 }
 
-export default Form;
+export default Form
